@@ -74,7 +74,7 @@ entity top_basys3 is
 		led 	:   out std_logic_vector(15 downto 0);  -- led(15:13) --> L
                                                         -- led(2:0)   --> R
 		
-		-- Buttons (5 total)
+		-- Buttons (5 total) 
 		--btnC	:	in	std_logic
 		--btnU	:	in	std_logic;
 		btnL	:	in	std_logic;                    -- clk_reset
@@ -86,15 +86,54 @@ end top_basys3;
 architecture top_basys3_arch of top_basys3 is 
   
 	-- declare components
+    component thunderbird_fsm is 
+  port(
+    i_clk, i_reset  : in std_logic; 
+    i_left, i_right : in std_logic; 
+    o_lights_L      : out std_logic_vector(2 downto 0);
+    o_lights_R      : out std_logic_vector(2 downto 0)
+  );
+end component thunderbird_fsm;
 
+    component clock_divider is
+	generic ( constant k_DIV : natural := 2	);
+	port ( 	i_clk    : in std_logic;		   -- basys3 clk
+			i_reset  : in std_logic;		   -- asynchronous
+			o_clk    : out std_logic		   -- divided (slow) clock
+	);
+end component clock_divider;
+
+signal w_clk : std_logic;
   
 begin
 	-- PORT MAPS ----------------------------------------
+	--Port map stoplight here based on the design provided
+	thunderbird_fsm_inst : thunderbird_fsm
+	    --generic map (k_DIV => 50000000)
+	    port map( 
+           i_reset => btnR,
+           i_clk => w_clk,
+           i_left => sw(15),
+           i_right => sw(0),
+           o_lights_L(0) => led(13),
+           o_lights_L(1) => led(14),
+           o_lights_L(2) => led(15),
+           o_lights_R(0) => led(2),
+           o_lights_R(1) => led(1),
+           o_lights_R(2) => led(0)  
+           );
+	
+	
 
-	
-	
-	-- CONCURRENT STATEMENTS ----------------------------
-	
+
+--Complete the clock_divider portmap below based on the design provided	
+	clkdiv_inst : clock_divider 		--instantiation of clock_divider to take 
+        generic map ( k_DIV => 12500000 ) -- 1 Hz clock from 100 MHz
+        port map (						  
+            i_clk   => clk,
+            i_reset => btnL,
+            o_clk   => w_clk
+        );
 	-- ground unused LEDs
 	-- leave unused switches UNCONNECTED
 	
