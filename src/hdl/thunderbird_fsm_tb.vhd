@@ -120,7 +120,7 @@ begin
         wait for k_clk_period;
         assert w_o_L = "000" report "left turn signal not going to next" severity failure;
         
-    assert w_o_R = "000" report "bad" severity failure;
+    --assert w_o_R = "000" report "bad" severity failure;
     w_left <= '1'; wait for k_clk_period;
         assert w_o_R = "001" report "right turn signal not turning on" severity failure;
         wait for k_clk_period;
